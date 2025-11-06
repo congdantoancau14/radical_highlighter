@@ -50,7 +50,10 @@ function highlightAll() {
 // === Add Toggle Button (Draggable + Closable + Pin Save) ===
 function addToggleButton() {
   if (document.getElementById("radicalToggleBtn")) return;
-
+// Default pin position: bottom
+if (!localStorage.getItem("radicalBtnPinned")) {
+  localStorage.setItem("radicalBtnPinned", "bottom");
+}
   // Create container
   const container = document.createElement("div");
   container.id = "radicalBtnContainer";
@@ -85,7 +88,6 @@ function addToggleButton() {
     fontWeight: "bold"
   });
 
-	if (localStorage.getItem("radicalBtnPinned") === "") localStorage.setItem("radicalBtnPinned", "bottom");
   // Pin button
   const pinBtn = document.createElement("button");
   pinBtn.textContent =
