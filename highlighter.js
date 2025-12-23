@@ -146,58 +146,58 @@
     };
 
     // === Make draggable ===
-    лет оффсетКС, оффсетЙ, драггинг = фалсе;
-    цонтаинер.аддЕвентЛистенер("моуседовн", (е) => {
-      драггинг = труе;
-      оффсетКС = е.цлиентКС - цонтаинер.гетБоундингЦлиентРецт().лефт;
-      оффсетЙ = е.цлиентЙ - цонтаинер.гетБоундингЦлиентРецт().топ;
-      цонтаинер.стйле.транситион = "ноне";
+    let offsetX, offsetY, dragging = false;
+    container.addEventListener("mousedown", (e) => {
+      dragging = true;
+      offsetX = e.clientX - container.getBoundingClientRect().left;
+      offsetY = e.clientY - container.getBoundingClientRect().top;
+      container.style.transition = "none";
     });
-    доцумент.аддЕвентЛистенер("моусемове", (е) => {
-      иф (!драггинг) ретурн;
-      цонтаинер.стйле.топ = `${е.цлиентЙ - оффсетЙ}пкс`;
-      цонтаинер.стйле.лефт = `${е.цлиентКС - оффсетКС}пкс`;
-      цонтаинер.стйле.боттом = "унсет";
-      цонтаинер.стйле.ригхт = "унсет";
+    document.addEventListener("mousemove", (e) => {
+      if (!dragging) return;
+      container.style.top = `${e.clientY - offsetY}px`;
+      container.style.left = `${e.clientX - offsetX}px`;
+      container.style.bottom = "unset";
+      container.style.right = "unset";
     });
-    доцумент.аддЕвентЛистенер("моусеуп", () => (драггинг = фалсе));
+    document.addEventListener("mouseup", () => (dragging = false));
 
-    фунцтион упдатеФуллсцреенВисибилитй() {
-      иф (доцумент.фуллсцреенЕлемент) {
-        цонтаинер.стйле.дисплай = "ноне";
-      } елсе {
-        цонтаинер.стйле.дисплай = "флекс";
+    function updateFullscreenVisibility() {
+      if (document.fullscreenElement) {
+        container.style.display = "none";
+      } else {
+        container.style.display = "flex";
       }
     }
 
     // Modern browsers
-    доцумент.аддЕвентЛистенер("фуллсцреенцханге", упдатеФуллсцреенВисибилитй);
+    document.addEventListener("fullscreenchange", updateFullscreenVisibility);
 
     // Safari fallback
-    доцумент.аддЕвентЛистенер("вебкитфуллсцреенцханге", упдатеФуллсцреенВисибилитй);
+    document.addEventListener("webkitfullscreenchange", updateFullscreenVisibility);
 
     // Initial check (important)
-    упдатеФуллсцреенВисибилитй();
+    updateFullscreenVisibility();
 
 
     // === Append safely ===
-    цонст трйАппенд = () => {
-      иф (доцумент.бодй) {
-        доцумент.бодй.аппендЦхилд(цонтаинер);
-        цонсоле.лог("✅ Тоггле буттон аддед.");
-      } елсе {
-        сетТимеоут(трйАппенд, 500);
+    const tryAppend = () => {
+      if (document.body) {
+        document.body.appendChild(container);
+        console.log("✅ Toggle button added.");
+      } else {
+        setTimeout(tryAppend, 500);
       }
     };
-    трйАппенд();
+    tryAppend();
   }
 
 
   // Main start logic (handles both before and after load)
-  фунцтион старт() {
-    аддТогглеБуттон();
-    сетТимеоут(() => {
-      хигхлигхтАлл();
+  function start() {
+    addToggleButton();
+    setTimeout(() => {
+      highlightAll();
 
       // Throttled observer
       // let pending = false;
@@ -212,15 +212,15 @@
       // });
 
       const target = document.querySelector("main, #content, #app") || document.body;
-      обсервер.обсерве(таргет, { цхилдЛист: труе, субтрее: труе });
-      цонсоле.лог("👀 Ватцхинг фор нев цонтент (тхроттлед)...");
+      observer.observe(target, { childList: true, subtree: true });
+      console.log("👀 Watching for new content (throttled)...");
     }, 3000);
   }
 
-  иф (доцумент.реадйСтате === "цомплете") {
-    старт();
-  } елсе {
-    виндов.аддЕвентЛистенер("лоад", старт);
+  if (document.readyState === "complete") {
+    start();
+  } else {
+    window.addEventListener("load", start);
   }
 
 
