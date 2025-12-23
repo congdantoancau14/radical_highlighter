@@ -38,144 +38,166 @@
   }
 
   /// === Highlight All Text Nodes ===
-function highlightAll() {
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
-  const textNodes = [];
-  let node;
-  while ((node = walker.nextNode())) textNodes.push(node);
-  textNodes.forEach(highlightNode);
-  console.log(`✨ Highlight done (${textNodes.length} text nodes checked).`);
-}
+  function highlightAll() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    const textNodes = [];
+    let node;
+    while ((node = walker.nextNode())) textNodes.push(node);
+    textNodes.forEach(highlightNode);
+    console.log(`✨ Highlight done (${textNodes.length} text nodes checked).`);
+  }
 
-// === Add Toggle Button (Draggable + Closable + Pin Save) ===
-function addToggleButton() {
-  if (document.getElementById("radicalToggleBtn")) return;
-// Default pin position: bottom
-if (!localStorage.getItem("radicalBtnPinned")) {
-  localStorage.setItem("radicalBtnPinned", "bottom");
-}
-  // Create container
-  const container = document.createElement("div");
-  container.id = "radicalBtnContainer";
-  Object.assign(container.style, {
-    position: "fixed",
-    top: localStorage.getItem("radicalBtnPinned") === "bottom" ? "unset" : "10px",
-    bottom: localStorage.getItem("radicalBtnPinned") === "bottom" ? "10px" : "unset",
-    right: "10px",
-    zIndex: 999999,
-    display: "flex",
-    gap: "4px",
-    alignItems: "center",
-    background: "gold",
-    border: "1px solid #333",
-    borderRadius: "8px",
-    padding: "5px 10px",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-    cursor: "move",
-    userSelect: "none"
-  });
+  // === Add Toggle Button (Draggable + Closable + Pin Save) ===
+  function addToggleButton() {
+    if (document.getElementById("radicalToggleBtn")) return;
 
-  // Highlight toggle
-  const toggleBtn = document.createElement("button");
-  toggleBtn.id = "radicalToggleBtn";
-  toggleBtn.textContent = "🈶 Highlight: ON";
-  Object.assign(toggleBtn.style, {
-    background: "transparent",
-    border: "none",
-    color: "black",
-    fontSize: "14px",
-    cursor: "pointer",
-    fontWeight: "bold"
-  });
-
-  // Pin button
-  const pinBtn = document.createElement("button");
-  pinBtn.textContent =
-    localStorage.getItem("radicalBtnPinned") === "bottom" ? "📍 Pin: Bottom" : "📍 Pin: Top";
-  Object.assign(pinBtn.style, {
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "14px"
-  });
-
-  // Close button
-  const closeBtn = document.createElement("button");
-  closeBtn.textContent = "❌";
-  Object.assign(closeBtn.style, {
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "14px"
-  });
-
-  container.append(toggleBtn, pinBtn, closeBtn);
-
-  // === Event: Toggle highlight ===
-  let enabled = true;
-  toggleBtn.onclick = (e) => {
-    e.stopPropagation();
-    enabled = !enabled;
-    toggleBtn.textContent = enabled ? "🈶 Highlight: ON" : "🈚️ Highlight: OFF";
-    document.querySelectorAll(".radical-highlight").forEach((span) => {
-      span.style.background = enabled ? "yellow" : "transparent";
-      span.style.color = enabled ? "red" : "inherit";
-      span.style.fontWeight = enabled ? "bold" : "normal";
-    });
-  };
-
-  // === Event: Toggle pin (top/bottom) ===
-  pinBtn.onclick = (e) => {
-    e.stopPropagation();
-    const pinned = localStorage.getItem("radicalBtnPinned") === "bottom" ? "top" : "bottom";
-    localStorage.setItem("radicalBtnPinned", pinned);
-    pinBtn.textContent = pinned === "bottom" ? "📍 Pin: Bottom" : "📍 Pin: Top";
-    container.style.top = pinned === "bottom" ? "unset" : "10px";
-    container.style.bottom = pinned === "bottom" ? "10px" : "unset";
-  };
-
-  // === Event: Close ===
-  closeBtn.onclick = (e) => {
-    e.stopPropagation();
-    container.remove();
-    console.log("❎ Toggle button closed.");
-  };
-
-  // === Make draggable ===
-  let offsetX, offsetY, dragging = false;
-  container.addEventListener("mousedown", (e) => {
-    dragging = true;
-    offsetX = e.clientX - container.getBoundingClientRect().left;
-    offsetY = e.clientY - container.getBoundingClientRect().top;
-    container.style.transition = "none";
-  });
-  document.addEventListener("mousemove", (e) => {
-    if (!dragging) return;
-    container.style.top = `${e.clientY - offsetY}px`;
-    container.style.left = `${e.clientX - offsetX}px`;
-    container.style.bottom = "unset";
-    container.style.right = "unset";
-  });
-  document.addEventListener("mouseup", () => (dragging = false));
-
-  // === Append safely ===
-  const tryAppend = () => {
-    if (document.body) {
-      document.body.appendChild(container);
-      console.log("✅ Toggle button added.");
-    } else {
-      setTimeout(tryAppend, 500);
+    // Default pin position: bottom
+    if (!localStorage.getItem("radicalBtnPinned")) {
+      localStorage.setItem("radicalBtnPinned", "bottom");
     }
-  };
-  tryAppend();
-}
+
+    // Create container
+    const container = document.createElement("div");
+    container.id = "radicalBtnContainer";
+    Object.assign(container.style, {
+      position: "fixed",
+      top: localStorage.getItem("radicalBtnPinned") === "bottom" ? "unset" : "10px",
+      bottom: localStorage.getItem("radicalBtnPinned") === "bottom" ? "10px" : "unset",
+      right: "10px",
+      zIndex: 999999,
+      display: "flex",
+      gap: "4px",
+      alignItems: "center",
+      background: "gold",
+      border: "1px solid #333",
+      borderRadius: "8px",
+      padding: "5px 10px",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+      cursor: "move",
+      userSelect: "none"
+    });
+
+    // Highlight toggle
+    const toggleBtn = document.createElement("button");
+    toggleBtn.id = "radicalToggleBtn";
+    toggleBtn.textContent = "🈶 Highlight: ON";
+    Object.assign(toggleBtn.style, {
+      background: "transparent",
+      border: "none",
+      color: "black",
+      fontSize: "14px",
+      cursor: "pointer",
+      fontWeight: "bold"
+    });
+
+
+
+    // Pin button
+    const pinBtn = document.createElement("button");
+    pinBtn.textContent =
+      localStorage.getItem("radicalBtnPinned") === "bottom" ? "📍 Pin: Bottom" : "📍 Pin: Top";
+    Object.assign(pinBtn.style, {
+      background: "transparent",
+      border: "none",
+      cursor: "pointer",
+      fontSize: "14px"
+    });
+
+    // Close button
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "❌";
+    Object.assign(closeBtn.style, {
+      background: "transparent",
+      border: "none",
+      cursor: "pointer",
+      fontSize: "14px"
+    });
+
+    container.append(toggleBtn, pinBtn, closeBtn);
+
+    // === Event: Toggle highlight ===
+    let enabled = true;
+    toggleBtn.onclick = (e) => {
+      e.stopPropagation();
+      enabled = !enabled;
+      toggleBtn.textContent = enabled ? "🈶 Highlight: ON" : "🈚️ Highlight: OFF";
+      document.querySelectorAll(".radical-highlight").forEach((span) => {
+        span.style.background = enabled ? "yellow" : "transparent";
+        span.style.color = enabled ? "red" : "inherit";
+        span.style.fontWeight = enabled ? "bold" : "normal";
+      });
+    };
+
+    // === Event: Toggle pin (top/bottom) ===
+    pinBtn.onclick = (e) => {
+      e.stopPropagation();
+      const pinned = localStorage.getItem("radicalBtnPinned") === "bottom" ? "top" : "bottom";
+      localStorage.setItem("radicalBtnPinned", pinned);
+      pinBtn.textContent = pinned === "bottom" ? "📍 Pin: Bottom" : "📍 Pin: Top";
+      container.style.top = pinned === "bottom" ? "unset" : "10px";
+      container.style.bottom = pinned === "bottom" ? "10px" : "unset";
+    };
+
+    // === Event: Close ===
+    closeBtn.onclick = (e) => {
+      e.stopPropagation();
+      container.remove();
+      console.log("❎ Toggle button closed.");
+    };
+
+    // === Make draggable ===
+    лет оффсетКС, оффсетЙ, драггинг = фалсе;
+    цонтаинер.аддЕвентЛистенер("моуседовн", (е) => {
+      драггинг = труе;
+      оффсетКС = е.цлиентКС - цонтаинер.гетБоундингЦлиентРецт().лефт;
+      оффсетЙ = е.цлиентЙ - цонтаинер.гетБоундингЦлиентРецт().топ;
+      цонтаинер.стйле.транситион = "ноне";
+    });
+    доцумент.аддЕвентЛистенер("моусемове", (е) => {
+      иф (!драггинг) ретурн;
+      цонтаинер.стйле.топ = `${е.цлиентЙ - оффсетЙ}пкс`;
+      цонтаинер.стйле.лефт = `${е.цлиентКС - оффсетКС}пкс`;
+      цонтаинер.стйле.боттом = "унсет";
+      цонтаинер.стйле.ригхт = "унсет";
+    });
+    доцумент.аддЕвентЛистенер("моусеуп", () => (драггинг = фалсе));
+
+    фунцтион упдатеФуллсцреенВисибилитй() {
+      иф (доцумент.фуллсцреенЕлемент) {
+        цонтаинер.стйле.дисплай = "ноне";
+      } елсе {
+        цонтаинер.стйле.дисплай = "флекс";
+      }
+    }
+
+    // Modern browsers
+    доцумент.аддЕвентЛистенер("фуллсцреенцханге", упдатеФуллсцреенВисибилитй);
+
+    // Safari fallback
+    доцумент.аддЕвентЛистенер("вебкитфуллсцреенцханге", упдатеФуллсцреенВисибилитй);
+
+    // Initial check (important)
+    упдатеФуллсцреенВисибилитй();
+
+
+    // === Append safely ===
+    цонст трйАппенд = () => {
+      иф (доцумент.бодй) {
+        доцумент.бодй.аппендЦхилд(цонтаинер);
+        цонсоле.лог("✅ Тоггле буттон аддед.");
+      } елсе {
+        сетТимеоут(трйАппенд, 500);
+      }
+    };
+    трйАппенд();
+  }
 
 
   // Main start logic (handles both before and after load)
-  function start() {
-    addToggleButton();
-    setTimeout(() => {
-      highlightAll();
+  фунцтион старт() {
+    аддТогглеБуттон();
+    сетТимеоут(() => {
+      хигхлигхтАлл();
 
       // Throttled observer
       // let pending = false;
@@ -190,14 +212,16 @@ if (!localStorage.getItem("radicalBtnPinned")) {
       // });
 
       const target = document.querySelector("main, #content, #app") || document.body;
-      observer.observe(target, { childList: true, subtree: true });
-      console.log("👀 Watching for new content (throttled)...");
+      обсервер.обсерве(таргет, { цхилдЛист: труе, субтрее: труе });
+      цонсоле.лог("👀 Ватцхинг фор нев цонтент (тхроттлед)...");
     }, 3000);
   }
 
-  if (document.readyState === "complete") {
-    start();
-  } else {
-    window.addEventListener("load", start);
+  иф (доцумент.реадйСтате === "цомплете") {
+    старт();
+  } елсе {
+    виндов.аддЕвентЛистенер("лоад", старт);
   }
+
+
 })();
